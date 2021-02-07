@@ -4,10 +4,12 @@ if(params.dev){
     log.info "Running in Develop Mode"
 }
 
-input = Channel.fromPath("${params.input_dir}/*.fastq").map {
+input = Channel.fromPath("${params.input_dir}/*{.fastq,.fq}*").map {
     id = "${it.getSimpleName()}"
     tuple id, it
 }
+
+input.view()
 
 index_base = Channel.fromPath("${params.index_basedir}/*.fa").map {
     id = "${it.getSimpleName()}"
