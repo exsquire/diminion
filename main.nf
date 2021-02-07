@@ -1,5 +1,5 @@
 nextflow.enable.dsl=2
-include { remove_barcodes; fastq_to_fasta } from './modules/process_reads.nf'
+include { remove_barcodes; unique_fasta } from './modules/process_reads.nf'
 
 
 if(params.dev){
@@ -20,7 +20,7 @@ workflow{
 					params.ca_trim_n,
 					params.ca_max_n,
 					params.ca_min_len)
-	fastq_to_fasta(remove_barcodes.out)	
+	unique_fasta(remove_barcodes.out)	
 }
 
 

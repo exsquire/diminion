@@ -19,14 +19,17 @@ process remove_barcodes{
 		"""
 }
 
-process fastq_to_fasta {
+process unique_fasta {
 	input:
 		tuple val(ID), path(FASTQ)
 	output:
-		path '*.fa'
-	
+		path '*.fa', emit: fasta
+		path '*.txt', emit: tabbed
+
 	script:
 		"""
-		sed -n '1~4s/^@/>/p;2~4p' $FASTQ > ${ID}.fa
+		usearch -fastx_uniques $FASTQ -fastaout ${ID}_unique.fa -sizeout -relabel Uniq -tabbedout ${ID}_tabbedout.txt
 		"""
 }
+
+
