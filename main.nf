@@ -1,4 +1,6 @@
-nextflow.preview.dsl=2
+nextflow.enable.dsl=2
+include { remove_barcodes } from './modules/process_reads.nf'
+
 
 if(params.dev){
     log.info "Running in Develop Mode"
@@ -11,33 +13,13 @@ input = Channel.fromPath("${params.input_dir}/*{.fastq,.fq}*").map {
 
 input.view()
 
-index_base = Channel.fromPath("${params.index_basedir}/*.fa").map {
-    id = "${it.getSimpleName()}"
-    tuple id, it  
+workflow{
+	remove_barcodes(input,
+					params.ca_adapt5p,
+					params.ca_adapt3p,
+					params.ca_trim_n,
+					params.ca_max_n,
+					params.ca_min_len)	
 }
 
-process remove_barcodes {
-    input:
-        tuple val(ID), path(FASTQ)
 
-    output:
-        tuple val(ID), path('*trimmed.fq')
-
-    script:
-    """
-    cutadapt -g ^CGATC -a gacgt --trim-n --max-n 5 --minimum-length 15 $FASTQ > ${ID}_trimmed.fq
-    """
-}
-
-process fastq_to_fasta {
-    input:
-        tuple val(ID), path(FASTQ)
-
-    output:
-        path '*'
-
-    script:
-        """
-        sed -n '1~4s/^@/>/p;2~4p' $FASTQ > ${ID}.fa
-        """
-}
