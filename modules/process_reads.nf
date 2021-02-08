@@ -23,7 +23,7 @@ process unique_fasta {
 	input:
 		tuple val(ID), path(FASTQ)
 	output:
-		path '*.fa', emit: fasta
+		tuple val(ID), path('*.fa'), emit: unique
 		path '*.txt', emit: tabbed
 
 	script:
