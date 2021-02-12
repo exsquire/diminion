@@ -39,15 +39,16 @@ process remove_unwanted_reads{
 
 process align_to_targets{
 	input:
-		tuple val(REF), path(INDEX)
-		tuple val(ID), path(FASTA)
+		tuple val(ID), path(FASTA), val(REF), path(INDEX)
 		val(ALL)
 		val(MM)
 	output:
 		path '*'
+		tuple val(ID), path('*unmapped.fa'), emit: unmapped
 	script:
 		OPT_ALL = ALL ? '--all':'' 
 		"""
-		bowtie -f -v${MM} $OPT_ALL $REF $FASTA > "${ID}_${REF}.out"
+		bowtie -f -S -v${MM} $OPT_ALL --un ${ID}_${REF}_unmapped.fa $REF $FASTA > "${ID}_${REF}.out"
 		"""
 }
+

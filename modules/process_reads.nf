@@ -32,4 +32,14 @@ process unique_fasta {
 		"""
 }
 
+process trim_reads {
+	input:
+		tuple val(ID), path(FASTA)
+	output:
+		tuple val(ID), path('*trimmed*'), emit: trimmed
 
+	script:
+		"""
+		usearch -fastx_truncate $FASTA  -trunclen $params.trunclen -label_suffix _$params.trunclen -fastaout ${ID}_trimmed${params.trunclen}.fa
+		"""
+}
