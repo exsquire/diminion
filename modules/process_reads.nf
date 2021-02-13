@@ -1,6 +1,9 @@
 nextflow.enable.dsl=2
+def set_outdir(dir, sub) {dir ? "${dir}/${sub}" : "${sub}"}
 
 process remove_barcodes{
+	outdir = set_outdir(params.output_dir, "no_barcodes")
+	publishDir "${outdir}", mode: 'link'
 	input:
 		tuple val(ID), path(FASTQ)
 		val(ADAPT_5P)
@@ -10,16 +13,19 @@ process remove_barcodes{
 		val(MIN_LEN)
 		
 	output:
-		tuple val(ID), path('*trimmed.fq')
+		tuple val(ID), path('*nobarcodes.fq')
 
 	script:
 		OPT_TRIM_N = TRIM_N ? '--trim-n' : '' 
 		"""
-		cutadapt -g $ADAPT_5P -a $ADAPT_3P --max-n $MAX_N --minimum-length $MIN_LEN $OPT_TRIM_N $FASTQ > ${ID}_trimmed.fq 
+		cutadapt -g $ADAPT_5P -a $ADAPT_3P --max-n $MAX_N --minimum-length $MIN_LEN $OPT_TRIM_N $FASTQ > ${ID}_nobarcodes.fq 
 		"""
 }
 
 process unique_fasta {
+	outdir = set_outdir(params.output_dir, "unique_reads")
+	publishDir "${outdir}", pattern: "*unique.fa", mode: 'link'
+	publishDir "${outdir}", pattern: "*tabbedout.txt", mode: 'link'
 	input:
 		tuple val(ID), path(FASTQ)
 	output:
@@ -33,6 +39,8 @@ process unique_fasta {
 }
 
 process trim_reads {
+	outdir = set_outdir(params.output_dir, "trimmed_reads")
+	publishDir "${outdir}", pattern: "*trimmed*",mode: 'link'
 	input:
 		tuple val(ID), path(FASTA)
 	output:

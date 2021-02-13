@@ -43,4 +43,3 @@ workflow{
 	trim_reads(align_to_targets.out.unmapped)
 }
 
-
