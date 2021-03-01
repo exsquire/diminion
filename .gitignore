@@ -1,3 +1,5 @@
-*nextflow*
+.nextflow*
 *.swp
 
+results/
+work/

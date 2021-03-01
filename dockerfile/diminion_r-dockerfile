@@ -1,0 +1,5 @@
+FROM rocker/r-ver:4.0.0
+LABEL maintainer="excel.que@gmail.com"
+LABEL version="0.1"
+LABEL description="R 4.0.0 environment image for the Diminion Nextflow Pipeline"
+

@@ -1,26 +1,28 @@
 nextflow.enable.dsl=2
 // Main nextflow script for the diminion pipeline
 
-include { remove_barcodes; unique_fasta; trim_reads } from './modules/process_reads.nf'
-include { build_subtractive_index; remove_unwanted_reads; build_target_indices; align_to_targets } from './modules/align_reads.nf'
+include { remove_barcodes; 
+		  unique_fasta; trim_reads } from './modules/process_reads.nf'
+include { subtractive_alignment as remove_rDNA;
+		  subtractive_alignment as remove_tRNA;
+		  subtractive_alignment as remove_repeats; 
+		  align_to_targets } from './modules/align_reads.nf'
 
 log.info print_header()
 
-input = Channel.fromPath("${params.input_dir}/*{.fastq,.fq}*").map {
-    id = "${it.getSimpleName()}"
-    tuple id, it
-}
+// Input channel formed from all the fastqs in the input directory parameter
+input = Channel.fromPath("${params.input_dir}/*{.fastq,.fq}*")
+	.map { tuple "${it.getSimpleName()}", it }
 
-targets = Channel.fromPath("${params.target_dir}/*{.fasta,.fa}*").map { 
-	id = "${it.getSimpleName()}"
-	tuple id, it
-}
-
-
-// Build a concatenated fasta for subtractive alignment
-subtract = Channel.fromPath("${params.subtract_dir}/*{.fasta,.fa}*")
-	.collectFile(name: "subtract.fa")
-
+// Channels for rDNA, tRNA, and repeats fastas
+// form sub channel via concatenation
+rDNA_ch = Channel.fromPath(params.rDNA_fasta)
+	.map{ tuple "${it.getSimpleName()}", it } 
+tRNA_ch = Channel.fromPath(params.tRNA_fasta)
+	.map{ tuple "${it.getSimpleName()}", it } 
+repeats_ch = Channel.fromPath(params.repeats_fasta)
+	.map{ tuple "${it.getSimpleName()}", it } 
+subs = rDNA_ch.concat(tRNA_ch).concat(repeats_ch)
 
 workflow{
 	remove_barcodes(input,
@@ -30,17 +32,28 @@ workflow{
 					params.ca_max_n,
 					params.ca_min_len)
 	unique_fasta(remove_barcodes.out)
-	build_subtractive_index(subtract)
-	build_target_indices(targets)
+	sub_ch = unique_fasta.out.unique.combine(subs)
+	remove_rDNA(sub_ch.first(),
+				params.bwt_all,
+				params.bwt_mismatch)
+	remove_tRNA(remove_rDNA.out.unmapped.combine(tRNA_ch),
+				params.bwt_all, 
+				params.bwt_mismatch)
+	remove_repeats(remove_tRNA.out.unmapped.combine(repeats_ch),
+				   params.bwt_all,
+				   params.bwt_mismatch)
+	remove_repeats.out.unmapped.view()
+    /*
 	remove_unwanted_reads(unique_fasta.out.unique,
 						  build_subtractive_index.out,
 						  params.bwt_all,
 						  params.bwt_mismatch)
-	target_ch = remove_unwanted_reads.out.combine(build_target_indices.out)
+	target_ch = remove_unwanted_reads.out.cleaned.combine(build_target_indices.out)
 	align_to_targets(target_ch,
 					 params.bwt_all,
 					 params.bwt_mismatch)
 	trim_reads(align_to_targets.out.unmapped)
+	*/
 }
 
 def print_header() {
