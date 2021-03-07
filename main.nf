@@ -53,7 +53,6 @@ workflow{
 	align_to_genome(trim_reads.out.trimmed.combine(genome_ch),
 					params.bwt_all,
 					params.bwt_mismatch)
-	align_to_genome.out.to_plot.view()
 }
 
 def print_header() {
