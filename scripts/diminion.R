@@ -1,9 +1,7 @@
 library(getopt)
-#library(ShortRead)
-#library(data.table)
-library(tidyverse)
-#library(ggplot2)
-#library(ggpubr)
+suppressPackageStartupMessages(library(data.table))
+suppressPackageStartupMessages(library(ShortRead))
+suppressPackageStartupMessages(library(tidyverse))
 
 source("cycle_plot.R")
 source("process_alignment.R")
@@ -33,15 +31,12 @@ alph_str <- str_split(args$bases, "") %>% unlist
 print(args)
 print(alph_str)
 
-make_cycle_plot <- function(fasta, bases = alph_str,prop = FALSE){
-  gen_cycle_plot(pull_cycle_data(sread = sread_fasta(fasta), 
-                                 len   = barwidth(sread_fasta(fasta)), 
-                                 bases = bases), 
-                 prop = prop)
-}
+# Make bases by cycle plot
+ggsave("cycle_plot.png", make_cycle_plot(args$fasta))
 
-#make_cycle_plot(args$fasta)
+# Make sense/antisense dataframe
+out <- count_strands(fread(args$alignment, check.names = FALSE))
+write.csv(out, "strand_count.csv", quote = FALSE, row.names = FALSE)
 
-# Show an example of a processed bowtie outfile
-#fread(args$alignment, check.names = FALSE)
+
 

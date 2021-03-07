@@ -13,7 +13,7 @@ log.info print_header()
 
 // Input channel formed from all the fastqs in the input directory parameter
 input = Channel.fromPath("${params.input_dir}/*{.fastq,.fq}*")
-	.map { tuple "${it.getSimpleName()}", it }.view()
+	.map { tuple "${it.getSimpleName()}", it }
 
 // Channels for rDNA, tRNA, and repeats fastas
 // form sub channel via concatenation
@@ -53,6 +53,7 @@ workflow{
 	align_to_genome(trim_reads.out.trimmed.combine(genome_ch),
 					params.bwt_all,
 					params.bwt_mismatch)
+	align_to_genome.out.to_plot.view()
 }
 
 def print_header() {

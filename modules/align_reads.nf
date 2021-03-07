@@ -49,9 +49,7 @@ process align_to_targets{
 		val(MM)
 	output:
 		path '*'
-		tuple val(ID), path('*bam')
-		tuple val(ID), path('*stdout')
-		tuple val(ID), path('*stderr')
+		tuple val(ID), path(FASTA), path('*stdout'), emit: to_plot
 	script:
 		OPT_ALL = ALL ? '--all':'' 
 		"""
