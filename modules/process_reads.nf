@@ -4,6 +4,7 @@ def set_outdir(dir, sub) {dir ? "${dir}/${sub}" : "${sub}"}
 process remove_barcodes{
 	outdir = set_outdir(params.output_dir, "no_barcodes")
 	publishDir "${outdir}", mode: 'link'
+	container "exsquire/diminion:1.0.0"
 	input:
 		tuple val(ID), path(FASTQ)
 		val(ADAPT_5P)
@@ -26,6 +27,7 @@ process unique_fasta {
 	outdir = set_outdir(params.output_dir, "unique_reads")
 	publishDir "${outdir}", pattern: "*unique.fa", mode: 'link'
 	publishDir "${outdir}", pattern: "*tabbedout.txt", mode: 'link'
+	container "exsquire/diminion:1.0.0"
 	input:
 		tuple val(ID), path(FASTQ)
 	output:
@@ -41,6 +43,7 @@ process unique_fasta {
 process trim_reads {
 	outdir = set_outdir(params.output_dir, "trimmed_reads")
 	publishDir "${outdir}", pattern: "*trimmed*",mode: 'link'
+	container "exsquire/diminion:1.0.0"
 	input:
 		tuple val(ID), path(FASTA)
 	output:
@@ -51,3 +54,4 @@ process trim_reads {
 		usearch -fastx_truncate $FASTA  -trunclen $params.trunclen -label_suffix _$params.trunclen -fastaout ${ID}_trimmed${params.trunclen}.fa
 		"""
 }
+

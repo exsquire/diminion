@@ -14,7 +14,7 @@ process subtractive_alignment{
     publishDir "${outdir}/stdout", pattern: "*stdout", mode: 'link' 
     publishDir "${outdir}/stderr", pattern: "*stderr", mode: 'link'
 	publishDir "${outdir}/index", pattern: "*ebwt", mode: 'link'  
-
+	container "exsquire/diminion:1.0.0"
 	input:
 		tuple val(TARGID), path(TARGFASTA), val(SUBID), path(SUBFASTA)
 		val(ALL)
@@ -22,6 +22,8 @@ process subtractive_alignment{
 	output:
 		path('*')
 		tuple val(DESIG), path('*unmapped.fa'), emit: unmapped 
+		tuple val(DESIG), path('*.stdout'), emit: stdout
+		tuple val(DESIG), path('*.stderr'), emit: stderr
 	script:
 		DESIG = TARGID+"_sub"+SUBID
 		OPT_ALL = ALL ? '--all':''
@@ -33,39 +35,33 @@ process subtractive_alignment{
 		"""
 		
 }
-process remove_unwanted_reads{
-	outdir = set_outdir(params.output_dir, "cleaned_reads") 
-	publishDir "${outdir}", pattern: "*cleaned*",mode: 'link' 
-	input:
-		tuple val(ID), path(FASTA)
-		path(INDEX)		
-		val(ALL)
-		val(MM)
-	output:
-		tuple val(ID), path('*_cleaned.fa'), emit: cleaned
-		tuple val(ID), path('*subtract.out')
-	script:
-		OPT_ALL = ALL ? '--all':''
-		"""
-		bowtie -f -v${MM} $OPT_ALL --un ${ID}_cleaned.fa subtract $FASTA > ${ID}_subtract.out
-		"""
-}
 
 process align_to_targets{
 	outdir = set_outdir(params.output_dir, "target_alignments")
-	publishDir "${outdir}/bowtie_stdout", pattern: "*.out",mode: 'link'
+	publishDir "${outdir}/stdout", pattern: "*.stdout", mode: 'link'
+	publishDir "${outdir}/stderr", pattern: "*.stderr", mode: 'link'
+	publishDir "${outdir}/bam", pattern: "*.bam", mode: 'link'
 	publishDir "${outdir}/unmapped", pattern: "*unmapped.fa",mode: 'link'
+	container "exsquire/diminion:1.0.0"
 	input:
-		tuple val(ID), path(FASTA), val(REF), path(INDEX)
+		tuple val(ID), path(FASTA), val(REFID), path(REF_FASTA)
 		val(ALL)
 		val(MM)
 	output:
 		path '*'
-		tuple val(ID), path('*unmapped.fa'), emit: unmapped
+		tuple val(ID), path('*bam')
+		tuple val(ID), path('*stdout')
+		tuple val(ID), path('*stderr')
 	script:
 		OPT_ALL = ALL ? '--all':'' 
 		"""
-		bowtie -f -v${MM} $OPT_ALL --un ${ID}_${REF}_unmapped.fa $REF $FASTA > "${ID}_${REF}.out"
+		bowtie-build $REF_FASTA $REFID
+		bowtie -f -v${MM} $OPT_ALL --un ${ID}_${REFID}_unmapped.fa -x $REFID $FASTA \
+														2> "${ID}_${REFID}.stderr" \
+														1> "${ID}_${REFID}.stdout"
+		bowtie -f --sam -v${MM} $OPT_ALL -x $REFID $FASTA > "${ID}_${REFID}.sam"
+		samtools view -bS "${ID}_${REFID}.sam" > "${ID}_${REFID}.bam"	
+		
 		"""
 }
 

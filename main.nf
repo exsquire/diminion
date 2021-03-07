@@ -6,13 +6,14 @@ include { remove_barcodes;
 include { subtractive_alignment as remove_rDNA;
 		  subtractive_alignment as remove_tRNA;
 		  subtractive_alignment as remove_repeats; 
-		  align_to_targets } from './modules/align_reads.nf'
+		  align_to_targets as align_to_transcripts;
+		  align_to_targets as align_to_genome } from './modules/align_reads.nf'
 
 log.info print_header()
 
 // Input channel formed from all the fastqs in the input directory parameter
 input = Channel.fromPath("${params.input_dir}/*{.fastq,.fq}*")
-	.map { tuple "${it.getSimpleName()}", it }
+	.map { tuple "${it.getSimpleName()}", it }.view()
 
 // Channels for rDNA, tRNA, and repeats fastas
 // form sub channel via concatenation
@@ -22,7 +23,10 @@ tRNA_ch = Channel.fromPath(params.tRNA_fasta)
 	.map{ tuple "${it.getSimpleName()}", it } 
 repeats_ch = Channel.fromPath(params.repeats_fasta)
 	.map{ tuple "${it.getSimpleName()}", it } 
-subs = rDNA_ch.concat(tRNA_ch).concat(repeats_ch)
+transcripts_ch = Channel.fromPath(params.transcripts_fasta)
+	.map{ tuple "${it.getSimpleName()}", it }
+genome_ch = Channel.fromPath(params.genome_fasta)
+	.map{ tuple "${it.getSimpleName()}", it }
 
 workflow{
 	remove_barcodes(input,
@@ -32,8 +36,8 @@ workflow{
 					params.ca_max_n,
 					params.ca_min_len)
 	unique_fasta(remove_barcodes.out)
-	sub_ch = unique_fasta.out.unique.combine(subs)
-	remove_rDNA(sub_ch.first(),
+	sub_ch = unique_fasta.out.unique.combine(rDNA_ch)
+	remove_rDNA(sub_ch,
 				params.bwt_all,
 				params.bwt_mismatch)
 	remove_tRNA(remove_rDNA.out.unmapped.combine(tRNA_ch),
@@ -42,18 +46,13 @@ workflow{
 	remove_repeats(remove_tRNA.out.unmapped.combine(repeats_ch),
 				   params.bwt_all,
 				   params.bwt_mismatch)
-	remove_repeats.out.unmapped.view()
-    /*
-	remove_unwanted_reads(unique_fasta.out.unique,
-						  build_subtractive_index.out,
-						  params.bwt_all,
-						  params.bwt_mismatch)
-	target_ch = remove_unwanted_reads.out.cleaned.combine(build_target_indices.out)
-	align_to_targets(target_ch,
+	trim_reads(remove_repeats.out.unmapped)
+	align_to_transcripts(trim_reads.out.trimmed.combine(transcripts_ch),
 					 params.bwt_all,
 					 params.bwt_mismatch)
-	trim_reads(align_to_targets.out.unmapped)
-	*/
+	align_to_genome(trim_reads.out.trimmed.combine(genome_ch),
+					params.bwt_all,
+					params.bwt_mismatch)
 }
 
 def print_header() {
@@ -73,8 +72,6 @@ def print_header() {
 def summary = [:]
 summary['Run name']     = workflow.runName
 summary['Input fastq dir'] = params.input_dir
-summary['Subtract dir'] = params.subtract_dir
-summary['Target dir']   = params.target_dir
 summary['Output dir']   = params.output_dir
 summary['Launch dir']   = workflow.launchDir
 summary['Working dir']  = workflow.workDir
