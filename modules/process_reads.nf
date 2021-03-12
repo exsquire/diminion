@@ -1,4 +1,4 @@
-nextflow.enable.dsl=2
+nextflow.preview.dsl=2
 def set_outdir(dir, sub) {dir ? "${dir}/${sub}" : "${sub}"}
 
 process remove_barcodes{
