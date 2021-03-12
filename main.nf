@@ -1,4 +1,4 @@
-nextflow.enable.dsl=2
+nextflow.preview.dsl=2
 // Main nextflow script for the diminion pipeline
 
 include { remove_barcodes; 
