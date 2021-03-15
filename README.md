@@ -49,10 +49,10 @@ These are the 3 main components of a standard nextflow pipeline written in the D
 * **main.nf:** Holds the main "workflow" that dictates the order of the pipeline, specifies any included modules, and anything else needed to be done when the main script is run. 
 * **nextflow.config:** Defines defaults for the Nextflow pipeline and much more. 
 * **modules/:**
- * **align_reads.nf:** 
-  * *subtractive_alignment:* Takes in 2 fastas, one containing reads to be removed (subfasta) and to be filtered for subfasta reads (fasta). Builds bowtie index of subfasta, then aligns fasta to index, outputting the unmapped sequences. Output is fasta filtered for subfasta reads. 
-  * *align_to_target:* Takes in 2 fastas, one to be aligned to (referncefasta) and one to align (fasta). Builds bowtie index of referencefasta, aligns fasts to index and outputs a sam file. Sam file is converted to sorted bam file, indexed, and idxstated to get counts of mapped reads. 
- * **process_reads.nf:**
-  * *remove_barcodes:* Takes in fastqs and parameters for cutadapt, outputs trimmed fastqs
-  * *unique_fasta:* Takes in fastqs and passes them to usearch's fastx_uniques function, which reduces a read file to uniques, gives each unique read a size annotation of how many there were, and outputs the unique reads in a specified format, in this case a fasta file. 
-  * *trim_reads:* Takes in a fasta and uses usearch's fastx_truncate to trim the reads to a specified length
+  * **align_reads.nf:** 
+     * *subtractive_alignment:* Takes in 2 fastas, one containing reads to be removed (subfasta) and to be filtered for subfasta reads (fasta). Builds bowtie index of subfasta, then aligns fasta to index, outputting the unmapped sequences. Output is fasta filtered for subfasta reads. 
+     * *align_to_target:* Takes in 2 fastas, one to be aligned to (referncefasta) and one to align (fasta). Builds bowtie index of referencefasta, aligns fasts to index and outputs a sam file. Sam file is converted to sorted bam file, indexed, and idxstated to get counts of mapped reads. 
+   * **process_reads.nf:**
+     * *remove_barcodes:* Takes in fastqs and parameters for cutadapt, outputs trimmed fastqs
+     * *unique_fasta:* Takes in fastqs and passes them to usearch's fastx_uniques function, which reduces a read file to uniques, gives each unique read a size annotation of how many there were, and outputs the unique reads in a specified format, in this case a fasta file. 
+     * *trim_reads:* Takes in a fasta and uses usearch's fastx_truncate to trim the reads to a specified length
