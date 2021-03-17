@@ -55,3 +55,14 @@ process trim_reads {
 		"""
 }
 
+process make_plots {
+	container "exsquire/diminion_r:1.0.0"
+	input:
+		tuple val(ID), path(FASTA), path(STDOUT)
+	output:
+		path('*')
+	script:
+		"""
+		Rscript diminion
+		""" 
+}

@@ -1,10 +1,16 @@
-library(getopt)
-suppressPackageStartupMessages(library(data.table))
-suppressPackageStartupMessages(library(ShortRead))
-suppressPackageStartupMessages(library(tidyverse))
-
-source("cycle_plot.R")
-source("process_alignment.R")
+suppressPackageStartupMessages({
+	library(getopt)
+	library(data.table)
+	library(ShortRead)
+	library(dplyr)
+	library(stringr)
+	library(tidyr)
+	library(purrr)
+	library(tibble)
+	library(ggplot2)
+})
+source("/scripts/cycle_plot.R")
+source("/scripts/process_alignment.R")
 
 spec = matrix(c(
   'fasta',     'f', 1, "character", "Path to input FASTA. <REQUIRED>",

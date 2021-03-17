@@ -1,6 +1,6 @@
 # Reads in fasta file using Short Read
 sread_fasta <- function(fasta){
-  require(ShortRead)
+  library(ShortRead)
   sread(readFasta(fasta))
 }
 
