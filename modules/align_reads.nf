@@ -30,8 +30,8 @@ process subtractive_alignment{
 		"""
 		bowtie-build $SUBFASTA $SUBID
 		bowtie -f -v${MM} $OPT_ALL --un ${DESIG}_unmapped.fa -x $SUBID $TARGFASTA \
-															2> ${DESIG}.stderr \
-															1> ${DESIG}.stdout 
+			2> ${DESIG}.stderr \
+			1> ${DESIG}.stdout 
 		"""
 		
 }
@@ -40,8 +40,8 @@ process align_to_targets{
 	outdir = set_outdir(params.output_dir, "target_alignments")
 	publishDir "${outdir}/stdout", pattern: "*.stdout", mode: 'link'
 	publishDir "${outdir}/stderr", pattern: "*.stderr", mode: 'link'
-	publishDir "${outdir}/bam", pattern: "*.bam", mode: 'link'
-	publishDir "${outdir}/unmapped", pattern: "*unmapped.fa",mode: 'link'
+	publishDir "${outdir}", pattern: "*.bam*", mode: 'link'
+	publishDir "${outdir}", pattern: "*.report",mode: 'link'
 	container "exsquire/diminion:1.0.0"
 	input:
 		tuple val(ID), path(FASTA), val(REFID), path(REF_FASTA)
@@ -55,11 +55,16 @@ process align_to_targets{
 		"""
 		bowtie-build $REF_FASTA $REFID
 		bowtie -f -v${MM} $OPT_ALL --un ${ID}_${REFID}_unmapped.fa -x $REFID $FASTA \
-														2> "${ID}_${REFID}.stderr" \
-														1> "${ID}_${REFID}.stdout"
+			2> "${ID}_${REFID}.stderr" \
+			1> "${ID}_${REFID}.stdout"
 		bowtie -f --sam -v${MM} $OPT_ALL -x $REFID $FASTA > "${ID}_${REFID}.sam"
-		samtools view -bS "${ID}_${REFID}.sam" > "${ID}_${REFID}.bam"	
-		
+		samtools view -bS ${ID}_${REFID}.sam | samtools sort -o ${ID}_${REFID}.sorted.bam -
+		samtools index ${ID}_${REFID}.sorted.bam	
+		samtools idxstats ${ID}_${REFID}.sorted.bam > ${ID}_${REFID}.idx.stats
+		awk '{ if ($4 != 0 || $3 != 0) { print } }' ${ID}_${REFID}.idx.stats \
+			| sort -r -nk3 - \
+			| awk 'BEGIN{print "REF\tlen\tmapped\tunmapped"}1'\
+			> ${ID}_${REFID}.stat.report
 		"""
 }
 
