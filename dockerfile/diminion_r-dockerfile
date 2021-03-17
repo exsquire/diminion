@@ -1,6 +1,6 @@
 FROM bioconductor/bioconductor_docker:devel
 
-RUN install2.r --error dplyr stringr purrr ggplot2 ggpubr getopt tidyr
+RUN install2.r --error ggpubr getopt tidyverse
 RUN R -e "install.packages('BiocManager')" && \ 
 	R -e "BiocManager::install('ShortRead')"
 
