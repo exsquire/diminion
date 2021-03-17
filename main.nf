@@ -2,7 +2,7 @@ nextflow.preview.dsl=2
 // Main nextflow script for the diminion pipeline
 
 include { remove_barcodes; 
-		  unique_fasta; trim_reads } from './modules/process_reads.nf'
+		  unique_fasta; trim_reads; make_plots } from './modules/process_reads.nf'
 include { subtractive_alignment as remove_rDNA;
 		  subtractive_alignment as remove_tRNA;
 		  subtractive_alignment as remove_repeats; 
@@ -53,7 +53,7 @@ workflow{
 	align_to_genome(trim_reads.out.trimmed.combine(genome_ch),
 					params.bwt_all,
 					params.bwt_mismatch)
-	align_to_genome.out.to_plot.view()
+	make_plots(align_to_genome.out.to_plot)
 }
 
 def print_header() {

@@ -3,7 +3,7 @@ def set_outdir(dir, sub) {dir ? "${dir}/${sub}" : "${sub}"}
 
 process remove_barcodes{
 	outdir = set_outdir(params.output_dir, "no_barcodes")
-	publishDir "${outdir}", mode: 'link'
+	publishDir "${outdir}"
 	container "exsquire/diminion:1.0.0"
 	input:
 		tuple val(ID), path(FASTQ)
@@ -25,8 +25,8 @@ process remove_barcodes{
 
 process unique_fasta {
 	outdir = set_outdir(params.output_dir, "unique_reads")
-	publishDir "${outdir}", pattern: "*unique.fa", mode: 'link'
-	publishDir "${outdir}", pattern: "*tabbedout.txt", mode: 'link'
+	publishDir "${outdir}", pattern: "*unique.fa"
+	publishDir "${outdir}", pattern: "*tabbedout.txt"
 	container "exsquire/diminion:1.0.0"
 	input:
 		tuple val(ID), path(FASTQ)
@@ -42,7 +42,7 @@ process unique_fasta {
 
 process trim_reads {
 	outdir = set_outdir(params.output_dir, "trimmed_reads")
-	publishDir "${outdir}", pattern: "*trimmed*",mode: 'link'
+	publishDir "${outdir}", pattern: "*trimmed*"
 	container "exsquire/diminion:1.0.0"
 	input:
 		tuple val(ID), path(FASTA)
@@ -56,13 +56,21 @@ process trim_reads {
 }
 
 process make_plots {
+	outdir = set_outdir(params.output_dir, "plots")
+	publishDir "${outdir}/${ID}"
 	container "exsquire/diminion_r:1.0.0"
+	containerOptions "--volume ${workflow.projectDir}/scripts:/scripts"
 	input:
 		tuple val(ID), path(FASTA), path(STDOUT)
 	output:
 		path('*')
 	script:
 		"""
-		Rscript diminion
+		pwd
+		echo Contents in wd
+		ls -la
+		echo Contents of /scripts
+		ls -la /scripts
+		Rscript /scripts/diminion.R -f $FASTA -a $STDOUT
 		""" 
 }

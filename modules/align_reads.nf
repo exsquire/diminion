@@ -10,10 +10,10 @@ def set_outdir(dir, sub) {dir ? "${dir}/${sub}" : "${sub}"}
 // and bowtie's stdout and stderr from the alignment
 process subtractive_alignment{
 	outdir = set_outdir(params.output_dir, "subtractive_alignment") 
-	publishDir "${outdir}/${TARGID}/unmapped", pattern: "*unmapped.fa", mode: 'link' 
-    publishDir "${outdir}/${TARGID}/stdout", pattern: "*stdout", mode: 'link' 
-    publishDir "${outdir}/${TARGID}/stderr", pattern: "*stderr", mode: 'link'
-	publishDir "${outdir}/${TARGID}/index", pattern: "*ebwt", mode: 'link'  
+	publishDir "${outdir}/${TARGID}/unmapped", pattern: "*unmapped.fa"
+    publishDir "${outdir}/${TARGID}/stdout", pattern: "*stdout"
+    publishDir "${outdir}/${TARGID}/stderr", pattern: "*stderr"
+	publishDir "${outdir}/${TARGID}/index", pattern: "*ebwt"
 	container "exsquire/diminion:1.0.0"
 	input:
 		tuple val(TARGID), path(TARGFASTA), val(SUBID), path(SUBFASTA)
@@ -29,7 +29,7 @@ process subtractive_alignment{
 		OPT_ALL = ALL ? '--all':''
 		"""
 		bowtie-build $SUBFASTA $SUBID
-		bowtie -f -v${MM} $OPT_ALL --un ${DESIG}_unmapped.fa -x $SUBID $TARGFASTA \
+		bowtie -f -v${MM} $OPT_ALL --un ${DESIG}_unmapped.fa $SUBID $TARGFASTA \
 			2> ${DESIG}.stderr \
 			1> ${DESIG}.stdout 
 		"""
@@ -38,10 +38,10 @@ process subtractive_alignment{
 
 process align_to_targets{
 	outdir = set_outdir(params.output_dir, "target_alignments")
-	publishDir "${outdir}/${ID}/stdout", pattern: "*.stdout", mode: 'link'
-	publishDir "${outdir}/${ID}/stderr", pattern: "*.stderr", mode: 'link'
-	publishDir "${outdir}/${ID}/bam", pattern: "*.bam*", mode: 'link'
-	publishDir "${outdir}/${ID}", pattern: "*.report",mode: 'link'
+	publishDir "${outdir}/${ID}/stdout", pattern: "*.stdout"
+	publishDir "${outdir}/${ID}/stderr", pattern: "*.stderr"
+	publishDir "${outdir}/${ID}/bam", pattern: "*.bam*"
+	publishDir "${outdir}/${ID}", pattern: "*.report"
 	container "exsquire/diminion:1.0.0"
 	input:
 		tuple val(ID), path(FASTA), val(REFID), path(REF_FASTA)
@@ -54,10 +54,10 @@ process align_to_targets{
 		OPT_ALL = ALL ? '--all':'' 
 		"""
 		bowtie-build $REF_FASTA $REFID
-		bowtie -f -v${MM} $OPT_ALL --un ${ID}_${REFID}_unmapped.fa -x $REFID $FASTA \
+		bowtie -f -v${MM} $OPT_ALL --un ${ID}_${REFID}_unmapped.fa $REFID $FASTA \
 			2> "${ID}_${REFID}.stderr" \
 			1> "${ID}_${REFID}.stdout"
-		bowtie -f --sam -v${MM} $OPT_ALL -x $REFID $FASTA > "${ID}_${REFID}.sam"
+		bowtie -f --sam -v${MM} $OPT_ALL $REFID $FASTA > "${ID}_${REFID}.sam"
 		samtools view -bS ${ID}_${REFID}.sam | samtools sort -o ${ID}_${REFID}.sorted.bam -
 		samtools index ${ID}_${REFID}.sorted.bam	
 		samtools idxstats ${ID}_${REFID}.sorted.bam > ${ID}_${REFID}.idx.stats
