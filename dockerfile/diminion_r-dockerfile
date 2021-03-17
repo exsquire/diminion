@@ -1,2 +1,6 @@
-FROM rocker/tidyverse:4.0.3
+FROM bioconductor/bioconductor_docker:devel
+
+RUN install2.r --error dplyr stringr purrr ggplot2 ggpubr
+RUN R -e "install.packages('BiocManager')" && \ 
+	R -e "BiocManager::install('ShortRead')"
 
