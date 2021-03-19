@@ -53,7 +53,8 @@ workflow{
 	align_to_genome(trim_reads.out.trimmed.combine(genome_ch),
 					params.bwt_all,
 					params.bwt_mismatch)
-	make_plots(align_to_genome.out.to_plot)
+	make_plots(align_to_genome.out.to_plot,
+			   params.cyc_prop)
 }
 
 def print_header() {
@@ -90,7 +91,7 @@ summary['Allowed mismatches'] = params.bwt_mismatch
 summary['USEARCH ARGS'] = '=========='
 summary['Truncation length'] = params.trunclen
 summary['DIMINION ARGS'] = '=========='
-summary['Cycle plot type']        = params.cyc_prop ? 'Total Counts' : 'Proportion'
+summary['Cycle plot type']        = params.cyc_prop ? 'Proportion' : 'Total Counts'
 log.info summary.collect { k,v -> if(k =~ 'ARGS'){
 									"\n$v:$k:$v"} 
 									else{ "${k.padRight(18)}: $v"}}.join("\n")

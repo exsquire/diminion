@@ -62,15 +62,12 @@ process make_plots {
 	containerOptions "--volume ${workflow.projectDir}/scripts:/scripts"
 	input:
 		tuple val(ID), path(FASTA), path(STDOUT)
+		val(CYC)
 	output:
 		path('*')
 	script:
+		OPT_CYC = CYC ? '--proportion':''
 		"""
-		pwd
-		echo Contents in wd
-		ls -la
-		echo Contents of /scripts
-		ls -la /scripts
-		Rscript /scripts/diminion.R -f $FASTA -a $STDOUT
+		Rscript /scripts/diminion.R -f $FASTA -a $STDOUT $OPT_CYC
 		""" 
 }

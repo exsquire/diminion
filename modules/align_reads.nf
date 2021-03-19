@@ -36,6 +36,10 @@ process subtractive_alignment{
 		
 }
 
+// Aligns the filtered unique reads to target genome and transcripts fasta
+// The bowtie stdout and the fasta are sent to be analyzed by the make_plots process
+// The same alignment is performed, outputting a SAM file, which gets converted to a BAM,
+// sorted, and indexed before generating a report using and awk-formatted idxstats output. 
 process align_to_targets{
 	outdir = set_outdir(params.output_dir, "target_alignments")
 	publishDir "${outdir}/${ID}/stdout", pattern: "*.stdout"
