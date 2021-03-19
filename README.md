@@ -8,6 +8,20 @@ Nextflow is a domain specific language (DSL) belonging to the "workflow manager"
 Nextflow is designed to be lightweight and trivial to use. All a user needs is a POSIX-compatible system like Unix or Mac OS X, Bash 3.2+, and Java 8+. 
 For the specific and mercifully short installaltion instructions - see the Nextflow docs here: https://www.nextflow.io/docs/latest/getstarted.html
 
+The preferred (but not only) way of running Diminion is by asking Nextflow to run its processes inside Docker containers - this, of course, requires Docker. Installing Docker and building docker images on your system requires administrative privileges. If you are on an HPC cluster, you might have to contact your system administrator to install docker and add your user ID to the 'docker' group. 
+
+This error is commonly caused when a user has not been added to the 'docker' group
+```
+docker: Got permission denied while trying to connect to the Docker daemon socket
+```
+
+Add yourself and refresh groups with the following code block. 
+```
+sudo groupadd docker                                                           
+sudo gpasswd -a $USER docker                                                           
+newgrp docker    
+```
+
 ### Quick Start
 + git clone the repository
 + cd diminion
@@ -49,7 +63,7 @@ Docker to the rescue!
 Docker lets us ensure that all software, scripts, and workstation settings are the same for each run of the pipeline, no matter who runs it, by building a "virtual computer" for the program to run inside. The specifications of this virtual computer is called an "image", and when activated, it can spin up a "container" for our code to run in, as many as we want, all identical. We build the image using a set of instructions called a "dockerfile", specifying the type of computer we want and what we want on it, and then we push it up to a docker registry, like dockerhub (like github, but for docker images).
 
 Diminion has 2 subdirectories dedicated to reproducibility
-* **dockfiles:** contains instructures for building the docker images used by the pipeline
+* **dockfiles:** contains instructures for building the docker images used by the pipeline - an amazing primer: https://www.nextflow.io/blog/2016/docker-and-nextflow.html
   * *dimidock-dockerfile:* builds off the continuumio/miniconda2 base image - easily downloads and installs software from the bioconda repository 
   * *diminion_r-dockerfile:* builds off the bioconductor/bioconductor_docker:devel - useful for installing R libraries only available through bioconductor
 * **bin:** contains ready-to-use software binaries used in the pipeline, in this case usearch is the only 3rd party software we needed a binary of. 
