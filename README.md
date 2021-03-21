@@ -3,6 +3,8 @@ The diminion project packages the small RNA bioinformatics workflow found in Zha
 
 ![Alt text](assets/diminion_workflow.png?raw=true "Diminion Workflow Graph")
 
+![Alt text](assets/cycle_plot.png?raw=true "Example Cycle Plot")
+
 ## Pipeline 
 Nextflow is a domain specific language (DSL) belonging to the "workflow manager" class. Workflow managers can be used to build powerful, distributable, and user-friendly bioinformatics pipelines. The code itself is written in "Groovy", which is a superset of Java. 
 
