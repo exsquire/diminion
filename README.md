@@ -3,6 +3,8 @@ The diminion project packages the small RNA bioinformatics workflow found in Zha
 
 ![Alt text](assets/diminion_workflow.png?raw=true "Diminion Workflow Graph")
 
+One of the main pipeline outputs is cycle plot, which can take in a fasta file (here, the uniformly trimmed processed fasta for genome alignment) and plot the base distribution per cycle. 
+
 ![Alt text](assets/cycle_plot.png?raw=true "Example Cycle Plot")
 
 ## Pipeline 
