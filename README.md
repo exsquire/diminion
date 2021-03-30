@@ -40,7 +40,12 @@ newgrp docker
 + nextflow run main.nf
 
 ### Input/Output 
+A test case is included in the repository within the assets/test/dev folder. It includes 2 single-end FASTQ files representing 2 samples, the reference FASTA files for removing unwanted reads, and the reference FASTA files to which processed reads are aligned. 
+
 ![Alt text](assets/IO_0.png?raw=true "Input Example")
+
+When successfully run, the pipeline produces a 'results' folder in the working directory, giving users access to the intermediate files generated throughout the pipeline. Each file is designated a sample id taken from the input files and relevant other relevant file names. For example, if sample 'A' is aligned to reference 'Z', the output might be 'A_Z'.
+
 ![Alt text](assets/IO_1.png?raw=true "Results Structure 1")
 ![Alt text](assets/IO_2.png?raw=true "Results Structure 2")
 
