@@ -1,9 +1,15 @@
 # diminion
 The diminion project packages the small RNA bioinformatics workflow found in Zhang et al. (2020, BMC Genomics) into a distributable pipeline that uses contemporary techniques of bioinformatic pipeline development. The workflow removes the barcodes from raw single-end fastqs, subtractively aligns the unique reads to tRNA, rDNA, and repetetive element libraries, trims the output down and aligns it to target annotated transcript and whole genome fastas. The user has access to all intermediates produced by the pipeline, but the main outputs are nucleotide distribution plots of the trimmed fastq and an index stats table produced from the whole genome alignment bam. 
 
+## Significance
+
+Diminion's workflow can be used to extract biological significance from single-end FASTQ files that hold sequencing data from prepared libraries. The test case included in the repository is a snippet from an analysis of small RNA from the parasitic protozoan E. histolytica - a cause of dysentary and liver abscesses in humans from underdeveloped countries. Parasitic small RNA can participate in the targeted knockdown of host gene expression, so understanding their origin and structure could lead to valuable insights into human pathogens.
+
+When small RNAs are extracted from biological samples and sequenced, diminion can extract the unique sequences, filter them for elements unnecessary to the analysis, trim them to a size of an expected subpopulation (e.g. 27 nucleotides), and then align them to annotated reference genomes and transcripts to find the associated contig/coding element.
+
 ![Alt text](assets/diminion_workflow.png?raw=true "Diminion Workflow Graph")
 
-One of the main pipeline outputs is cycle plot, which can take in a fasta file (here, the uniformly trimmed processed fasta for genome alignment) and plot the base distribution per cycle. 
+One of the main pipeline outputs is cycle plot, which can take in a fasta file (here, the uniformly trimmed processed fasta for genome alignment) and plot the base distribution per cycle. Such plots allow us to characterize certain populations of sRNAs by visualizing a nucleotide bias at specific positions. 
 
 ![Alt text](assets/cycle_plot.png?raw=true "Example Cycle Plot")
 
@@ -32,6 +38,11 @@ newgrp docker
 + git clone the repository
 + cd diminion
 + nextflow run main.nf
+
+### Input/Output 
+![Alt text](assets/IO_0.png?raw=true "Input Example")
+![Alt text](assets/IO_1.png?raw=true "Results Structure 1")
+![Alt text](assets/IO_2.png?raw=true "Results Structure 2")
 
 ### Structure and Function
 Diminion follows a typical nextflow file structure. A nextflow "pipeline" is a single directory with a bunch of stuff in it, this one is called "diminion". Within diminion, you will find some subdirectories and some files. I'll explain what they are and why we need them here.
